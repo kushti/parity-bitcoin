@@ -20,6 +20,7 @@ extern crate miner;
 extern crate verification;
 extern crate script as global_script;
 extern crate keys;
+extern crate popow;
 
 pub mod v1;
 pub mod rpc_server;
@@ -31,3 +32,6 @@ pub use jsonrpc_http_server::tokio_core::reactor::{Remote};
 
 pub use jsonrpc_http_server::{Server, Error};
 pub use rpc_server::start_http;
+
+
+pub use popow::interlink_vector::InterlinkVector;

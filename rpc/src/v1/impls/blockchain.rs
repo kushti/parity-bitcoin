@@ -17,6 +17,8 @@ use ser::serialize;
 use network::Magic;
 use primitives::hash::H256 as GlobalH256;
 
+use popow::interlink_vector::InterlinkVector;
+
 pub struct BlockChainClient<T: BlockChainClientCoreApi> {
 	core: T,
 }
@@ -29,6 +31,9 @@ pub trait BlockChainClientCoreApi: Send + Sync + 'static {
 	fn raw_block(&self, hash: GlobalH256) -> Option<RawBlock>;
 	fn verbose_block(&self, hash: GlobalH256) -> Option<VerboseBlock>;
 	fn verbose_transaction_out(&self, prev_out: OutPoint) -> Result<GetTxOutResponse, Error>;
+
+	//kushti: new methods
+	fn interlink_vector(&self) -> Option<InterlinkVector>;
 }
 
 pub struct BlockChainClientCore {
@@ -166,6 +171,10 @@ impl BlockChainClientCoreApi for BlockChainClientCore {
 			coinbase: transaction.is_coinbase(),
 		})
 	}
+
+	fn interlink_vector(&self) -> Option<InterlinkVector> {
+		None
+	}
 }
 
 impl<T> BlockChainClient<T> where T: BlockChainClientCoreApi {
@@ -229,6 +238,10 @@ impl<T> BlockChain for BlockChainClient<T> where T: BlockChainClientCoreApi {
 	fn transaction_out_set_info(&self) -> Result<GetTxOutSetInfoResponse, Error> {
 		rpc_unimplemented!()
 	}
+
+	fn interlink_vector(&self) -> Result<InterlinkVector, Error> {
+		rpc_unimplemented!()
+	}
 }
 
 #[cfg(test)]
@@ -254,6 +267,7 @@ pub mod tests {
 
 	#[derive(Default)]
 	struct SuccessBlockChainClientCore;
+
 	#[derive(Default)]
 	struct ErrorBlockChainClientCore;
 
@@ -285,7 +299,8 @@ pub mod tests {
 			// https://webbtc.com/block/000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd.json
 			Some(VerboseBlock {
 				hash: "bddd99ccfda39da1b108ce1a5d70038d0a967bacb68b6b63065f626a00000000".into(),
-				confirmations: 1, // h2
+				confirmations: 1,
+				// h2
 				size: 215,
 				strippedsize: 215,
 				weight: 215,
@@ -321,6 +336,8 @@ pub mod tests {
 				coinbase: false,
 			})
 		}
+
+		fn interlink_vector(&self) -> Option<InterlinkVector> { None }
 	}
 
 	impl BlockChainClientCoreApi for ErrorBlockChainClientCore {
@@ -351,6 +368,8 @@ pub mod tests {
 		fn verbose_transaction_out(&self, prev_out: OutPoint) -> Result<GetTxOutResponse, Error> {
 			Err(block_not_found(prev_out.hash))
 		}
+
+		fn interlink_vector(&self) -> Option<InterlinkVector> { None }
 	}
 
 	#[test]
@@ -461,7 +480,8 @@ pub mod tests {
 		let verbose_block = core.verbose_block("4860eb18bf1b1620e37e9490fc8a427514416fd75159ab86688e9a8300000000".into());
 		assert_eq!(verbose_block, Some(VerboseBlock {
 			hash: "4860eb18bf1b1620e37e9490fc8a427514416fd75159ab86688e9a8300000000".into(),
-			confirmations: 2, // h1 + h2
+			confirmations: 2,
+			// h1 + h2
 			size: 215,
 			strippedsize: 215,
 			weight: 215,
@@ -487,7 +507,8 @@ pub mod tests {
 		let verbose_block = core.verbose_block("bddd99ccfda39da1b108ce1a5d70038d0a967bacb68b6b63065f626a00000000".into());
 		assert_eq!(verbose_block, Some(VerboseBlock {
 			hash: "bddd99ccfda39da1b108ce1a5d70038d0a967bacb68b6b63065f626a00000000".into(),
-			confirmations: 1, // h2
+			confirmations: 1,
+			// h2
 			size: 215,
 			strippedsize: 215,
 			weight: 215,
@@ -598,19 +619,19 @@ pub mod tests {
 			index: 0,
 		});
 		assert_eq!(verbose_transaction_out, Ok(GetTxOutResponse {
-				bestblock: "6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000".into(),
-				confirmations: 1,
-				value: 50.0,
-				script: TransactionOutputScript {
-					asm: "OP_PUSHBYTES_65 0x04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f\nOP_CHECKSIG\n".to_owned(),
-					hex: Bytes::from("4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"),
-					req_sigs: 1,
-					script_type: ScriptType::PubKey,
-					addresses: vec!["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa".into()]
-				},
-				version: 1,
-				coinbase: true
-			}));
+			bestblock: "6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000".into(),
+			confirmations: 1,
+			value: 50.0,
+			script: TransactionOutputScript {
+				asm: "OP_PUSHBYTES_65 0x04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f\nOP_CHECKSIG\n".to_owned(),
+				hex: Bytes::from("4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"),
+				req_sigs: 1,
+				script_type: ScriptType::PubKey,
+				addresses: vec!["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa".into()]
+			},
+			version: 1,
+			coinbase: true
+		}));
 	}
 
 	#[test]
@@ -645,5 +666,30 @@ pub mod tests {
 			}"#)).unwrap();
 
 		assert_eq!(&sample, r#"{"jsonrpc":"2.0","error":{"code":-32099,"message":"Block with given hash is not found","data":"3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a"},"id":1}"#);
+	}
+
+	#[test]
+	fn interlink_vector_success() {
+		let block_vec = vec![test_data::genesis().into(),
+							 test_data::block_h1().into(),
+							 test_data::block_h2().into(),
+							 test_data::block_h3().into()];
+
+		let storage = Arc::new(BlockChainDatabase::init_test_chain(block_vec));
+		let core = BlockChainClientCore::new(Magic::Mainnet, storage);
+		let client = BlockChainClient::new(core);
+
+		let mut handler = IoHandler::new();
+		handler.extend_with(client.to_delegate());
+
+		let sample = handler.handle_request_sync(&(r#"
+			{
+				"jsonrpc": "2.0",
+				"method": "ivector",
+				"params": [],
+				"id": 1
+			}"#)).unwrap();
+
+		assert_eq!(&sample, r#"{"jsonrpc":"2.0","result":{"bestblock":"0000000000000000000000000000000000000000000000000000000000000056","coinbase":false,"confirmations":777,"scriptPubKey":{"addresses":["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa","1H5m1XzvHsjWX3wwU781ubctznEpNACrNC"],"asm":"Hello, world!!!","hex":"01020304","reqSigs":777,"type":"multisig"},"value":100000.56,"version":33},"id":1}"#);
 	}
 }

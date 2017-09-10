@@ -25,6 +25,7 @@ import = { path = "import" }
 logs = { path = "logs" }
 rpc = { path = "rpc" }
 primitives = { path = "primitives" }
+popow = {path = "popow" }
 
 [profile.dev]
 debug = true

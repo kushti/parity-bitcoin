@@ -27,6 +27,7 @@ miner = { path = "../miner" }
 verification = { path = "../verification" }
 script = { path = "../script" }
 keys = { path = "../keys" }
+popow = { path = "../popow" }
 
 [dev-dependencies]
 test-data = { path = "../test-data" }

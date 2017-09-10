@@ -65,6 +65,7 @@ impl SyncListener for BlockNotifier {
 	}
 
 	fn best_storage_block_inserted(&self, block_hash: &H256) {
+		println!("New best block!!!");
 		if !self.is_synchronizing.load(Ordering::SeqCst) {
 			self.tx.send(BlockNotifierTask::NewBlock(block_hash.clone()))
 				.expect("Block notification thread have the same lifetime as `BlockNotifier`")

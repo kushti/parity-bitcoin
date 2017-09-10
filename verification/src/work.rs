@@ -175,7 +175,8 @@ mod tests {
 	use network::{Magic, ConsensusParams, ConsensusFork};
 	use db::{BlockHeaderProvider, BlockRef};
 	use chain::BlockHeader;
-	use super::{work_required, is_valid_proof_of_work_hash, is_valid_proof_of_work, block_reward_satoshi};
+	use super::{work_required, is_valid_proof_of_work_hash, is_valid_proof_of_work,
+				block_reward_satoshi, is_on_level, max_level};
 
 	fn is_valid_pow(max: Compact, bits: u32, hash: &'static str) -> bool {
 		is_valid_proof_of_work_hash(bits.into(), &H256::from_reversed_str(hash)) &&

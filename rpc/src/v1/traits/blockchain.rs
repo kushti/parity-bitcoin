@@ -6,6 +6,8 @@ use v1::types::GetBlockResponse;
 use v1::types::GetTxOutResponse;
 use v1::types::GetTxOutSetInfoResponse;
 
+use popow::interlink_vector::InterlinkVector;
+
 
 build_rpc_trait! {
 	/// Parity-bitcoin blockchain data interface.
@@ -38,5 +40,10 @@ build_rpc_trait! {
 		/// @curl-example: curl --data-binary '{"jsonrpc": "2.0", "method": "gettxoutsetinfo", "params": [], "id":1 }' -H 'content-type: application/json' http://127.0.0.1:8332/
 		#[rpc(name = "gettxoutsetinfo")]
 		fn transaction_out_set_info(&self) -> Result<GetTxOutSetInfoResponse, Error>;
+
+		/// Get current interlink vector.
+		///
+		#[rpc(name = "ivector")]
+		fn interlink_vector(&self) -> Result<InterlinkVector, Error>;
 	}
 }
