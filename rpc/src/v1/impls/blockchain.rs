@@ -6,7 +6,7 @@ use v1::types::H256;
 use v1::types::U256;
 use keys::{self, Address};
 use v1::helpers::errors::{block_not_found, block_at_height_not_found, transaction_not_found,
-	transaction_output_not_found, transaction_of_side_branch};
+						  transaction_output_not_found, transaction_of_side_branch};
 use jsonrpc_macros::Trailing;
 use jsonrpc_core::Error;
 use {db, chain};
@@ -18,6 +18,8 @@ use network::Magic;
 use primitives::hash::H256 as GlobalH256;
 
 use popow::interlink_vector::InterlinkVector;
+
+use db::BlockRef;
 
 pub struct BlockChainClient<T: BlockChainClientCoreApi> {
 	core: T,
@@ -33,7 +35,7 @@ pub trait BlockChainClientCoreApi: Send + Sync + 'static {
 	fn verbose_transaction_out(&self, prev_out: OutPoint) -> Result<GetTxOutResponse, Error>;
 
 	//kushti: new methods
-	fn interlink_vector(&self) -> Option<InterlinkVector>;
+	fn interlink_vector(&self) -> InterlinkVector;
 }
 
 pub struct BlockChainClientCore {
@@ -43,7 +45,6 @@ pub struct BlockChainClientCore {
 
 impl BlockChainClientCore {
 	pub fn new(network: Magic, storage: db::SharedStore) -> Self {
-
 		BlockChainClientCore {
 			network: network,
 			storage: storage,
@@ -93,12 +94,15 @@ impl BlockChainClientCoreApi for BlockChainClientCore {
 				VerboseBlock {
 					confirmations: confirmations,
 					size: block_size as u32,
-					strippedsize: block_size as u32, // TODO: segwit
-					weight: block_size as u32, // TODO: segwit
+					strippedsize: block_size as u32,
+					// TODO: segwit
+					weight: block_size as u32,
+					// TODO: segwit
 					height: height,
 					mediantime: Some(median_time),
 					difficulty: block.header.raw.bits.to_f64(),
-					chainwork: U256::default(), // TODO: read from storage
+					chainwork: U256::default(),
+					// TODO: read from storage
 					previousblockhash: Some(block.header.raw.previous_header_hash.clone().into()),
 					nextblockhash: height.and_then(|h| self.storage.block_hash(h + 1).map(|h| h.into())),
 					bits: block.header.raw.bits.into(),
@@ -172,8 +176,18 @@ impl BlockChainClientCoreApi for BlockChainClientCore {
 		})
 	}
 
-	fn interlink_vector(&self) -> Option<InterlinkVector> {
-		None
+	fn interlink_vector(&self) -> InterlinkVector {
+		let height = self.block_count();
+
+		let mut iv = InterlinkVector::genesis(self.storage.as_block_provider());
+		let mut idx = 1;
+
+		while idx < height {
+			let h = self.storage.block_header(BlockRef::Number(idx)).unwrap();
+			iv = iv.update_with_header(h);
+			idx = idx + 1;
+		}
+		iv
 	}
 }
 
@@ -190,9 +204,9 @@ impl<T> BlockChain for BlockChainClient<T> where T: BlockChainClientCoreApi {
 		Ok(self.core.best_block_hash().reversed().into())
 	}
 
-    fn block_count(&self) -> Result<u32, Error> {
-        Ok(self.core.block_count())
-    }
+	fn block_count(&self) -> Result<u32, Error> {
+		Ok(self.core.block_count())
+	}
 
 	fn block_hash(&self, height: u32) -> Result<H256, Error> {
 		self.core.block_hash(height)
@@ -222,7 +236,7 @@ impl<T> BlockChain for BlockChainClient<T> where T: BlockChainClientCoreApi {
 			self.core.raw_block(global_hash.reversed())
 				.map(|block| GetBlockResponse::Raw(block))
 		}
-		.ok_or(block_not_found(hash))
+			.ok_or(block_not_found(hash))
 	}
 
 	fn transaction_out(&self, transaction_hash: H256, out_index: u32, _include_mempool: Trailing<bool>) -> Result<GetTxOutResponse, Error> {
@@ -240,7 +254,7 @@ impl<T> BlockChain for BlockChainClient<T> where T: BlockChainClientCoreApi {
 	}
 
 	fn interlink_vector(&self) -> Result<InterlinkVector, Error> {
-		rpc_unimplemented!()
+		Ok(self.core.interlink_vector())
 	}
 }
 
@@ -264,6 +278,7 @@ pub mod tests {
 	use chain::OutPoint;
 	use network::Magic;
 	use super::*;
+	use chain::IndexedBlock;
 
 	#[derive(Default)]
 	struct SuccessBlockChainClientCore;
@@ -337,7 +352,16 @@ pub mod tests {
 			})
 		}
 
-		fn interlink_vector(&self) -> Option<InterlinkVector> { None }
+		fn interlink_vector(&self) -> InterlinkVector {
+			let b0: IndexedBlock = test_data::block_h0().into();
+
+			let genesis_hash = b0.header.hash.clone();
+
+			InterlinkVector {
+				hash: genesis_hash.clone(),
+				vector: vec![genesis_hash]
+			}
+		}
 	}
 
 	impl BlockChainClientCoreApi for ErrorBlockChainClientCore {
@@ -369,7 +393,16 @@ pub mod tests {
 			Err(block_not_found(prev_out.hash))
 		}
 
-		fn interlink_vector(&self) -> Option<InterlinkVector> { None }
+		fn interlink_vector(&self) -> InterlinkVector {
+			let b0: IndexedBlock = test_data::block_h0().into();
+
+			let genesis_hash = b0.header.hash.clone();
+
+			InterlinkVector {
+				hash: genesis_hash.clone(),
+				vector: vec![genesis_hash]
+			}
+		}
 	}
 
 	#[test]

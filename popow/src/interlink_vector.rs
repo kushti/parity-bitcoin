@@ -59,12 +59,14 @@ impl InterlinkVector {
 	pub fn update(&self, best_hash: H256, provider: &BlockProvider) -> InterlinkVector {
 		let mut iv_hash = best_hash;
 
-		provider.block_number()
+		provider.block_number(best_hash)
 	} */
 }
 
+
 impl Serialize for InterlinkVector {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+
 		panic!("111");
 	}
 }
@@ -72,7 +74,6 @@ impl Serialize for InterlinkVector {
 /// Returns true if hash is lower or equal than target and target is lower or equal
 /// than current network maximum
 pub fn is_on_level(bits: Compact, level: u8, hash: &H256) -> bool {
-
 	let target = match bits.to_u256() {
 		Ok(target) => target,
 		_err => return false,
