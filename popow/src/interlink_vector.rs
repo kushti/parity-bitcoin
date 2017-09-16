@@ -10,6 +10,7 @@ use db::BlockProvider;
 
 
 //#[derive(Clone)]
+#[derive(Serialize)]
 pub struct InterlinkVector {
 	pub hash: H256,
 	pub vector: Vec<H256>
@@ -64,12 +65,7 @@ impl InterlinkVector {
 }
 
 
-impl Serialize for InterlinkVector {
-	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
 
-		panic!("111");
-	}
-}
 
 /// Returns true if hash is lower or equal than target and target is lower or equal
 /// than current network maximum

@@ -723,6 +723,6 @@ pub mod tests {
 				"id": 1
 			}"#)).unwrap();
 
-		assert_eq!(&sample, r#"{"jsonrpc":"2.0","result":{"bestblock":"0000000000000000000000000000000000000000000000000000000000000056","coinbase":false,"confirmations":777,"scriptPubKey":{"addresses":["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa","1H5m1XzvHsjWX3wwU781ubctznEpNACrNC"],"asm":"Hello, world!!!","hex":"01020304","reqSigs":777,"type":"multisig"},"value":100000.56,"version":33},"id":1}"#);
+		assert_eq!(&sample, r#"{"jsonrpc":"2.0","result":{"hash":"000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd","vector":["000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd","000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"]},"id":1}"#);
 	}
 }

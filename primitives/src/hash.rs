@@ -3,6 +3,7 @@
 use std::{fmt, ops, cmp, str};
 use hex::{ToHex, FromHex, FromHexError};
 use std::hash::{Hash, Hasher};
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
 macro_rules! impl_hash {
 	($name: ident, $size: expr) => {
@@ -173,5 +174,13 @@ impl H256 {
 	#[inline]
 	pub fn to_reversed_str(&self) -> String {
 		self.reversed().to_string()
+	}
+}
+
+
+impl Serialize for H256 {
+	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+		let as_hex = format!("{}", self.to_reversed_str());
+		serializer.serialize_str(&as_hex)
 	}
 }
