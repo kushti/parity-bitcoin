@@ -1,7 +1,5 @@
 extern crate primitives;
 
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
-
 use chain::hash::H256;
 use primitives::compact::Compact;
 use primitives::bigint::U256;
@@ -55,13 +53,6 @@ impl InterlinkVector {
 			}
 		}
 	}
-
-/*
-	pub fn update(&self, best_hash: H256, provider: &BlockProvider) -> InterlinkVector {
-		let mut iv_hash = best_hash;
-
-		provider.block_number(best_hash)
-	} */
 }
 
 
@@ -96,9 +87,8 @@ mod tests {
 
 	use chain::IndexedBlock;
 	use chain::hash::H256;
-	use ser::{Reader, Error as ReaderError, Stream};
 	use super::{InterlinkVector, is_on_level, max_level};
-	use chain::BlockHeader;
+
 
 	#[test]
 	fn test_block_header_stream() {
