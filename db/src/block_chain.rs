@@ -1,7 +1,6 @@
 use hash::H256;
 use chain::{IndexedBlock, IndexedBlockHeader};
 use {Error, BlockOrigin, Store, SideChainOrigin};
-use popow::interlink_vector::InterlinkVector;
 
 pub trait ForkChain {
 	/// Returns forks underlaying store.

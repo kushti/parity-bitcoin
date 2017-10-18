@@ -66,6 +66,7 @@ impl MemoryDatabase {
 				.chain(transaction)
 				.chain(transaction_meta)
 				.chain(block_number)
+				.chain(interlink_vector)
 				.chain(configuration)
 				.collect()
 		}
