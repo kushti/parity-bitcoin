@@ -196,12 +196,18 @@ impl<T> BlockChainDatabase<T> where T: KeyValueDatabase {
 				}
 			}
 		}
-
 		Err(Error::AncientFork)
 	}
 
 	pub fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
-		return Ok(())
+		let hash = ivector.hash.clone();
+		if self.contains_ivector(hash.clone().into()) {
+			return Ok(())
+		}
+
+		let mut update = DBTransaction::new();
+		update.insert(KeyValue::InterlinkVector(hash, ivector));
+		self.db.write(update).map_err(Error::DatabaseError)
 	}
 
 	pub fn insert(&self, block: IndexedBlock) -> Result<(), Error> {
@@ -429,6 +435,11 @@ impl<T> BlockProvider for BlockChainDatabase<T> where T: KeyValueDatabase {
 			.and_then(|hash| self.get(Key::BlockHeader(hash)))
 			.is_some()
 	}
+
+	fn contains_ivector(&self, ivector_hash: H256) -> bool {
+		self.get(Key::InterlinkVector(ivector_hash)).is_some()
+	}
+
 
 	fn block_transaction_hashes(&self, block_ref: BlockRef) -> Vec<H256> {
 		self.resolve_hash(block_ref)

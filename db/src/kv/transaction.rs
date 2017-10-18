@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use hash::H256;
 use ser::{serialize, List, deserialize};
+use popow::interlink_vector::InterlinkVector;
 use chain::{Transaction as ChainTransaction, BlockHeader};
 use {TransactionMeta};
 
@@ -13,6 +14,8 @@ pub const COL_TRANSACTIONS: u32 = 4;
 pub const COL_TRANSACTIONS_META: u32 = 5;
 pub const COL_BLOCK_NUMBERS: u32 = 6;
 pub const COL_CONFIGURATION: u32 = 7;
+pub const COL_INTERLINK_VECTOR: u32 = 8;
+
 
 #[derive(Debug)]
 pub enum Operation {
@@ -29,6 +32,7 @@ pub enum KeyValue {
 	Transaction(H256, ChainTransaction),
 	TransactionMeta(H256, TransactionMeta),
 	BlockNumber(H256, u32),
+	InterlinkVector(H256, InterlinkVector),
 	Configuration(&'static str, Bytes),
 }
 
@@ -41,6 +45,7 @@ pub enum Key {
 	Transaction(H256),
 	TransactionMeta(H256),
 	BlockNumber(H256),
+	InterlinkVector(H256),
 	Configuration(&'static str),
 }
 
@@ -53,6 +58,7 @@ pub enum Value {
 	Transaction(ChainTransaction),
 	TransactionMeta(TransactionMeta),
 	BlockNumber(u32),
+	InterlinkVector(InterlinkVector),
 	Configuration(Bytes),
 }
 
@@ -66,6 +72,7 @@ impl Value {
 			Key::Transaction(_) => deserialize(bytes).map(Value::Transaction),
 			Key::TransactionMeta(_) => deserialize(bytes).map(Value::TransactionMeta),
 			Key::BlockNumber(_) => deserialize(bytes).map(Value::BlockNumber),
+			Key::InterlinkVector(_) => deserialize(bytes).map(Value::InterlinkVector),
 			Key::Configuration(_) => deserialize(bytes).map(Value::Configuration),
 		}.map_err(|e| format!("{:?}", e))
 	}
@@ -227,6 +234,7 @@ impl<'a> From<&'a KeyValue> for RawKeyValue {
 			KeyValue::Transaction(ref key, ref value) => (COL_TRANSACTIONS, serialize(key), serialize(value)),
 			KeyValue::TransactionMeta(ref key, ref value) => (COL_TRANSACTIONS_META, serialize(key), serialize(value)),
 			KeyValue::BlockNumber(ref key, ref value) => (COL_BLOCK_NUMBERS, serialize(key), serialize(value)),
+			KeyValue::InterlinkVector(ref key, ref value) => (COL_INTERLINK_VECTOR, serialize(key), serialize(value)),
 			KeyValue::Configuration(ref key, ref value) => (COL_CONFIGURATION, serialize(key), serialize(value)),
 		};
 
@@ -262,6 +270,7 @@ impl<'a> From<&'a Key> for RawKey {
 			Key::Transaction(ref key) => (COL_TRANSACTIONS, serialize(key)),
 			Key::TransactionMeta(ref key) => (COL_TRANSACTIONS_META, serialize(key)),
 			Key::BlockNumber(ref key) => (COL_BLOCK_NUMBERS, serialize(key)),
+			Key::InterlinkVector(ref key) => (COL_INTERLINK_VECTOR, serialize(key)),
 			Key::Configuration(ref key) => (COL_CONFIGURATION, serialize(key)),
 		};
 

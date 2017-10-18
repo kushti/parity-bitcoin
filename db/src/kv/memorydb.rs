@@ -8,6 +8,7 @@ use ser::List;
 use chain::{Transaction as ChainTransaction, BlockHeader};
 use kv::{Transaction, Key, KeyState, Operation, Value, KeyValueDatabase, KeyValue};
 use {TransactionMeta};
+use popow::interlink_vector::InterlinkVector;
 
 #[derive(Default, Debug)]
 struct InnerDatabase {
@@ -18,6 +19,7 @@ struct InnerDatabase {
 	transaction: HashMap<H256, KeyState<ChainTransaction>>,
 	transaction_meta: HashMap<H256, KeyState<TransactionMeta>>,
 	block_number: HashMap<H256, KeyState<u32>>,
+	interlink_vector: HashMap<H256, KeyState<InterlinkVector>>,
 	configuration: HashMap<&'static str, KeyState<Bytes>>,
 }
 
@@ -50,6 +52,9 @@ impl MemoryDatabase {
 		let block_number = replace(&mut db.block_number, HashMap::default()).into_iter()
 			.flat_map(|(key, state)| state.into_operation(key, KeyValue::BlockNumber, Key::BlockNumber));
 
+		let interlink_vector = replace(&mut db.interlink_vector, HashMap::default()).into_iter()
+			.flat_map(|(key, state)| state.into_operation(key, KeyValue::InterlinkVector, Key::InterlinkVector));
+
 		let configuration = replace(&mut db.configuration, HashMap::default()).into_iter()
 			.flat_map(|(key, state)| state.into_operation(key, KeyValue::Configuration, Key::Configuration));
 
@@ -80,6 +85,7 @@ impl KeyValueDatabase for MemoryDatabase {
 					KeyValue::Transaction(key, value) => { db.transaction.insert(key, KeyState::Insert(value)); },
 					KeyValue::TransactionMeta(key, value) => { db.transaction_meta.insert(key, KeyState::Insert(value)); },
 					KeyValue::BlockNumber(key, value) => { db.block_number.insert(key, KeyState::Insert(value)); },
+					KeyValue::InterlinkVector(key, value) => { db.interlink_vector.insert(key, KeyState::Insert(value)); },
 					KeyValue::Configuration(key, value) => { db.configuration.insert(key, KeyState::Insert(value)); },
 				},
 				Operation::Delete(delete) => match delete {
@@ -90,6 +96,7 @@ impl KeyValueDatabase for MemoryDatabase {
 					Key::Transaction(key) => { db.transaction.insert(key, KeyState::Delete); }
 					Key::TransactionMeta(key) => { db.transaction_meta.insert(key, KeyState::Delete); }
 					Key::BlockNumber(key) => { db.block_number.insert(key, KeyState::Delete); }
+					Key::InterlinkVector(key) => { db.interlink_vector.insert(key, KeyState::Delete); },
 					Key::Configuration(key) => { db.configuration.insert(key, KeyState::Delete); }
 				}
 			}
@@ -107,6 +114,7 @@ impl KeyValueDatabase for MemoryDatabase {
 			Key::Transaction(ref key) => db.transaction.get(key).cloned().unwrap_or_default().map(Value::Transaction),
 			Key::TransactionMeta(ref key) => db.transaction_meta.get(key).cloned().unwrap_or_default().map(Value::TransactionMeta),
 			Key::BlockNumber(ref key) => db.block_number.get(key).cloned().unwrap_or_default().map(Value::BlockNumber),
+			Key::InterlinkVector(ref key) => db.interlink_vector.get(key).cloned().unwrap_or_default().map(Value::InterlinkVector),
 			Key::Configuration(ref key) => db.configuration.get(key).cloned().unwrap_or_default().map(Value::Configuration),
 		};
 

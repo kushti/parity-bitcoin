@@ -1,13 +1,16 @@
 extern crate primitives;
 
+use std::io;
 use chain::hash::H256;
 use primitives::compact::Compact;
 use primitives::bigint::U256;
 use chain::BlockHeader;
+use ser::{Serializable, Deserializable, Error, Stream, Reader};
 
 
 #[derive(Clone)]
 #[derive(Serialize)]
+#[derive(Debug)]
 pub struct InterlinkVector {
 	pub hash: H256,
 	pub vector: Vec<H256>
@@ -43,6 +46,18 @@ impl InterlinkVector {
 				}
 			}
 		}
+	}
+}
+
+impl Serializable for InterlinkVector {
+	fn serialize(&self, s: &mut Stream) {
+		unimplemented!()
+	}
+}
+
+impl Deserializable for InterlinkVector {
+	fn deserialize<T>(reader: &mut Reader<T>) -> Result<Self, Error> where Self: Sized, T: io::Read {
+		unimplemented!()
 	}
 }
 
