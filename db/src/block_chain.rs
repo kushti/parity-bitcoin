@@ -16,9 +16,6 @@ pub trait BlockChain {
 	/// Inserts new block into blockchain
 	fn insert(&self, block: IndexedBlock) -> Result<(), Error>;
 
-	// Inserts new interlink vector into blockchain
-	fn insert_ivector(&self, vector: InterlinkVector) -> Result<(), Error>;
-
 	/// Rollbacks single best block. Returns new best block hash
 	fn rollback_best(&self) -> Result<H256, Error>;
 

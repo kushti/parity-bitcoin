@@ -34,7 +34,7 @@ pub use block_chain::{BlockChain, ForkChain, Forkable};
 pub use block_chain_db::{BlockChainDatabase, ForkChainDatabase};
 pub use block_iterator::BlockIterator;
 pub use block_origin::{BlockOrigin, SideChainOrigin};
-pub use block_provider::{BlockHeaderProvider, BlockProvider, IndexedBlockProvider};
+pub use block_provider::{BlockHeaderProvider, BlockProvider, IndexedBlockProvider, InterlinkVectorProvider};
 pub use block_ref::BlockRef;
 pub use error::Error;
 pub use store::{AsSubstore, Store, SharedStore, CanonStore, ConfigStore};

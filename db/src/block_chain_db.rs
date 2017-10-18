@@ -24,7 +24,7 @@ use best_block::BestBlock;
 use {
 	BlockRef, Error, BlockHeaderProvider, BlockProvider, BlockOrigin, TransactionMeta, IndexedBlockProvider,
 	TransactionMetaProvider, TransactionProvider, TransactionOutputProvider, BlockChain, Store,
-	SideChainOrigin, ForkChain, Forkable, CanonStore, ConfigStore
+	SideChainOrigin, ForkChain, Forkable, CanonStore, ConfigStore, InterlinkVectorProvider
 };
 
 const KEY_BEST_BLOCK_NUMBER: &'static str = "best_block_number";
@@ -436,10 +436,6 @@ impl<T> BlockProvider for BlockChainDatabase<T> where T: KeyValueDatabase {
 			.is_some()
 	}
 
-	fn contains_ivector(&self, ivector_hash: H256) -> bool {
-		self.get(Key::InterlinkVector(ivector_hash)).is_some()
-	}
-
 
 	fn block_transaction_hashes(&self, block_ref: BlockRef) -> Vec<H256> {
 		self.resolve_hash(block_ref)
@@ -529,10 +525,6 @@ impl<T> BlockChain for BlockChainDatabase<T> where T: KeyValueDatabase {
 		BlockChainDatabase::insert(self, block)
 	}
 
-	fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
-		BlockChainDatabase::insert_ivector(self, ivector)
-	}
-
 	fn rollback_best(&self) -> Result<H256, Error> {
 		BlockChainDatabase::rollback_best(self)
 	}
@@ -605,5 +597,15 @@ impl<T> ConfigStore for BlockChainDatabase<T> where T: KeyValueDatabase {
 		let mut update = DBTransaction::new();
 		update.insert(KeyValue::Configuration("consensus_fork", consensus_fork.as_bytes().into()));
 		self.db.write(update).map_err(Error::DatabaseError)
+	}
+}
+
+impl<T> InterlinkVectorProvider for BlockChainDatabase<T> where T: KeyValueDatabase {
+	fn contains_ivector(&self, ivector_hash: H256) -> bool {
+		self.get(Key::InterlinkVector(ivector_hash)).is_some()
+	}
+
+	fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
+		BlockChainDatabase::insert_ivector(self, ivector)
 	}
 }

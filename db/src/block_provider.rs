@@ -1,7 +1,9 @@
 use hash::H256;
 use bytes::Bytes;
 use chain::{BlockHeader, Transaction, Block, IndexedBlock, IndexedBlockHeader, IndexedTransaction};
+use popow::interlink_vector::InterlinkVector;
 use {BlockRef};
+use Error;
 
 pub trait BlockHeaderProvider {
 	/// resolves header bytes by block reference (number/hash)
@@ -27,9 +29,6 @@ pub trait BlockProvider: BlockHeaderProvider {
 		self.block_header_bytes(block_ref).is_some()
 	}
 
-	/// returns true if store contains given interlink vector
-	fn contains_ivector(&self, ivector_hash: H256) -> bool;
-
 	/// resolves list of block transactions by block reference (number/hash)
 	fn block_transaction_hashes(&self, block_ref: BlockRef) -> Vec<H256>;
 
@@ -43,4 +42,13 @@ pub trait IndexedBlockProvider: BlockProvider {
 	fn indexed_block(&self, block_ref: BlockRef) -> Option<IndexedBlock>;
 
 	fn indexed_block_transactions(&self, block_ref: BlockRef) -> Vec<IndexedTransaction>;
+}
+
+
+pub trait InterlinkVectorProvider {
+	// Inserts new interlink vector into blockchain
+	fn insert_ivector(&self, vector: InterlinkVector) -> Result<(), Error>;
+
+	/// returns true if store contains given interlink vector
+	fn contains_ivector(&self, ivector_hash: H256) -> bool;
 }
