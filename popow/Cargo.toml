@@ -15,6 +15,5 @@ primitives = { path = "../primitives" }
 serialization = { path = "../serialization" }
 serialization_derive = { path = "../serialization_derive" }
 network = { path = "../network" }
-db = {path = "../db" }
 chain = {path = "../chain" }
 test-data = {path = "../test-data" }

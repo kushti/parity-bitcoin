@@ -224,6 +224,7 @@ dependencies = [
  "log 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "lru-cache 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "popow 0.1.0",
  "primitives 0.1.0",
  "rocksdb 0.4.5 (git+https://github.com/ethcore/rust-rocksdb)",
  "serialization 0.1.0",
@@ -791,7 +792,6 @@ version = "0.1.0"
 dependencies = [
  "bitcrypto 0.1.0",
  "chain 0.1.0",
- "db 0.1.0",
  "heapsize 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "network 0.1.0",
  "primitives 0.1.0",

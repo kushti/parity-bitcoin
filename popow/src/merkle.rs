@@ -14,7 +14,7 @@ fn bigger2n(k: u32) -> u32 {
 }
 
 
-//todo: implement domain separation
+//todo: domain separation
 fn root(prev_level: &Vec<H256>) -> H256 {
 
 	#[inline]

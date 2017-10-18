@@ -13,6 +13,7 @@ lru-cache = "0.1"
 primitives = { path = "../primitives" }
 serialization = { path = "../serialization" }
 chain = { path = "../chain" }
+popow = { path = "../popow" }
 
 [dev-dependencies]
 tempdir = "0.3"

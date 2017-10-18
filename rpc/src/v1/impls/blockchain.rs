@@ -19,10 +19,20 @@ use primitives::hash::H256 as GlobalH256;
 
 use popow::interlink_vector::InterlinkVector;
 
-use db::BlockRef;
+use db::{BlockRef, BlockProvider};
 
 pub struct BlockChainClient<T: BlockChainClientCoreApi> {
 	core: T,
+}
+
+//todo: the only constructor for InterlinkVector, make more basic one in popow
+pub fn genesis(provider: &BlockProvider) -> InterlinkVector {
+	let h = provider.block_hash(0).unwrap();
+	let hc = h.clone();
+	InterlinkVector {
+		hash: h,
+		vector: vec![hc]
+	}
 }
 
 pub trait BlockChainClientCoreApi: Send + Sync + 'static {
@@ -51,6 +61,7 @@ impl BlockChainClientCore {
 		}
 	}
 }
+
 
 impl BlockChainClientCoreApi for BlockChainClientCore {
 	fn best_block_hash(&self) -> GlobalH256 {
@@ -179,7 +190,7 @@ impl BlockChainClientCoreApi for BlockChainClientCore {
 	fn interlink_vector(&self) -> InterlinkVector {
 		let height = self.block_count();
 
-		let mut iv = InterlinkVector::genesis(self.storage.as_block_provider());
+		let mut iv = genesis(self.storage.as_block_provider());
 		let mut idx = 1;
 
 		while idx < height {

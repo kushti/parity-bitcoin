@@ -1,6 +1,7 @@
 use hash::H256;
 use chain::{IndexedBlock, IndexedBlockHeader};
 use {Error, BlockOrigin, Store, SideChainOrigin};
+use popow::interlink_vector::InterlinkVector;
 
 pub trait ForkChain {
 	/// Returns forks underlaying store.
@@ -14,6 +15,9 @@ pub trait ForkChain {
 pub trait BlockChain {
 	/// Inserts new block into blockchain
 	fn insert(&self, block: IndexedBlock) -> Result<(), Error>;
+
+	// Inserts new interlink vector into blockchain
+	fn insert_ivector(&self, vector: InterlinkVector) -> Result<(), Error>;
 
 	/// Rollbacks single best block. Returns new best block hash
 	fn rollback_best(&self) -> Result<H256, Error>;

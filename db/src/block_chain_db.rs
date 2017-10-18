@@ -4,6 +4,7 @@ use std::path::Path;
 use parking_lot::RwLock;
 use hash::H256;
 use bytes::Bytes;
+use popow::interlink_vector::InterlinkVector;
 use chain::{
 	IndexedBlock, IndexedBlockHeader, IndexedTransaction, BlockHeader, Block, Transaction,
 	OutPoint, TransactionOutput
@@ -197,6 +198,10 @@ impl<T> BlockChainDatabase<T> where T: KeyValueDatabase {
 		}
 
 		Err(Error::AncientFork)
+	}
+
+	pub fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
+		return Ok(())
 	}
 
 	pub fn insert(&self, block: IndexedBlock) -> Result<(), Error> {
@@ -511,6 +516,10 @@ impl<T> TransactionOutputProvider for BlockChainDatabase<T> where T: KeyValueDat
 impl<T> BlockChain for BlockChainDatabase<T> where T: KeyValueDatabase {
 	fn insert(&self, block: IndexedBlock) -> Result<(), Error> {
 		BlockChainDatabase::insert(self, block)
+	}
+
+	fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
+		BlockChainDatabase::insert_ivector(self, ivector)
 	}
 
 	fn rollback_best(&self) -> Result<H256, Error> {

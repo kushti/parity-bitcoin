@@ -4,10 +4,9 @@ use chain::hash::H256;
 use primitives::compact::Compact;
 use primitives::bigint::U256;
 use chain::BlockHeader;
-use db::BlockProvider;
 
 
-//#[derive(Clone)]
+#[derive(Clone)]
 #[derive(Serialize)]
 pub struct InterlinkVector {
 	pub hash: H256,
@@ -15,14 +14,6 @@ pub struct InterlinkVector {
 }
 
 impl InterlinkVector {
-	pub fn genesis(provider: &BlockProvider) -> InterlinkVector {
-		let h = provider.block_hash(0).unwrap();
-		let hc = h.clone();
-		InterlinkVector {
-			hash: h,
-			vector: vec![hc]
-		}
-	}
 
 	pub fn update_with_header (&self, header: BlockHeader) -> InterlinkVector {
 		let h = header.hash();
