@@ -51,4 +51,6 @@ pub trait InterlinkVectorProvider {
 
 	/// returns true if store contains given interlink vector
 	fn contains_ivector(&self, ivector_hash: H256) -> bool;
+
+	fn ivector(&self, ivector_hash: H256) -> Option<InterlinkVector>;
 }

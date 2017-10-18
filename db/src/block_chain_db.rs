@@ -605,6 +605,10 @@ impl<T> InterlinkVectorProvider for BlockChainDatabase<T> where T: KeyValueDatab
 		self.get(Key::InterlinkVector(ivector_hash)).is_some()
 	}
 
+	fn ivector(&self, ivector_hash: H256) -> Option<InterlinkVector> {
+		self.get(Key::InterlinkVector(ivector_hash)).and_then(Value::as_ivector)
+	}
+
 	fn insert_ivector(&self, ivector: InterlinkVector) -> Result<(), Error> {
 		BlockChainDatabase::insert_ivector(self, ivector)
 	}

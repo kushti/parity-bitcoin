@@ -132,6 +132,13 @@ impl Value {
 			_ => None,
 		}
 	}
+
+	pub fn as_ivector(self) -> Option<InterlinkVector> {
+		match self {
+			Value::InterlinkVector(iv) => Some(iv),
+			_ => None,
+		}
+	}
 }
 
 #[derive(Debug, Clone)]
