@@ -43,7 +43,17 @@ build_rpc_trait! {
 
 		/// Get current interlink vector.
 		///
-		#[rpc(name = "ivector")]
+		#[rpc(name = "ivectornow")]
 		fn interlink_vector(&self) -> Result<InterlinkVector, Error>;
+
+		/// Get interlink vector at given height.
+		///
+		#[rpc(name = "ivector")]
+		fn interlink_vector_height(&self, u32) -> Result<InterlinkVector, Error>;
+
+		/// Update interlink vector. Returns last vector generated
+		///
+		#[rpc(name = "ivectorupdate")]
+		fn interlink_vector_update(&self) -> Result<InterlinkVector, Error>;
 	}
 }

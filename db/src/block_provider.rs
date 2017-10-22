@@ -46,6 +46,14 @@ pub trait IndexedBlockProvider: BlockProvider {
 
 
 pub trait InterlinkVectorProvider {
+	//kushti: new methods
+	fn genesis_interlink_vector(&self) -> InterlinkVector;
+	fn interlink_vector(&self) -> InterlinkVector;
+
+	fn interlink_vector_height(&self, height: u32) -> InterlinkVector;
+
+	fn interlink_vector_update(&self) -> InterlinkVector;
+
 	// Inserts new interlink vector into blockchain
 	fn insert_ivector(&self, vector: InterlinkVector) -> Result<(), Error>;
 

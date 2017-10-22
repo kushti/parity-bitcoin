@@ -25,15 +25,6 @@ pub struct BlockChainClient<T: BlockChainClientCoreApi> {
 	core: T,
 }
 
-//todo: the only constructor for InterlinkVector, make more basic one in popow
-pub fn genesis(provider: &BlockProvider) -> InterlinkVector {
-	let h = provider.block_hash(0).unwrap();
-	let hc = h.clone();
-	InterlinkVector {
-		hash: h,
-		vector: vec![hc]
-	}
-}
 
 pub trait BlockChainClientCoreApi: Send + Sync + 'static {
 	fn best_block_hash(&self) -> GlobalH256;
@@ -43,9 +34,6 @@ pub trait BlockChainClientCoreApi: Send + Sync + 'static {
 	fn raw_block(&self, hash: GlobalH256) -> Option<RawBlock>;
 	fn verbose_block(&self, hash: GlobalH256) -> Option<VerboseBlock>;
 	fn verbose_transaction_out(&self, prev_out: OutPoint) -> Result<GetTxOutResponse, Error>;
-
-	//kushti: new methods
-	fn interlink_vector(&self) -> InterlinkVector;
 }
 
 pub struct BlockChainClientCore {
@@ -186,20 +174,6 @@ impl BlockChainClientCoreApi for BlockChainClientCore {
 			coinbase: transaction.is_coinbase(),
 		})
 	}
-
-	fn interlink_vector(&self) -> InterlinkVector {
-		let height = self.block_count();
-
-		let mut iv = genesis(self.storage.as_block_provider());
-		let mut idx = 1;
-
-		while idx < height {
-			let h = self.storage.block_header(BlockRef::Number(idx)).unwrap();
-			iv = iv.update_with_header(h);
-			idx = idx + 1;
-		}
-		iv
-	}
 }
 
 impl<T> BlockChainClient<T> where T: BlockChainClientCoreApi {
@@ -265,7 +239,17 @@ impl<T> BlockChain for BlockChainClient<T> where T: BlockChainClientCoreApi {
 	}
 
 	fn interlink_vector(&self) -> Result<InterlinkVector, Error> {
-		Ok(self.core.interlink_vector())
+		//todo: uncomment/fix Ok(self.core.interlink_vector())
+		rpc_unimplemented!()
+	}
+
+
+	fn interlink_vector_height(&self, height: u32) -> Result<InterlinkVector, Error> {
+		rpc_unimplemented!()
+	}
+
+	fn interlink_vector_update(&self) -> Result<InterlinkVector, Error> {
+		rpc_unimplemented!()
 	}
 }
 

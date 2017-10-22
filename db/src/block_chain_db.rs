@@ -27,13 +27,16 @@ use {
 	SideChainOrigin, ForkChain, Forkable, CanonStore, ConfigStore, InterlinkVectorProvider
 };
 
+const KEY_BEST_IVECTOR_HEIGHT: &'static str = "best_ivector_height";
 const KEY_BEST_BLOCK_NUMBER: &'static str = "best_block_number";
 const KEY_BEST_BLOCK_HASH: &'static str = "best_block_hash";
 
+const IVECTOR_DEFAULT_HEIGHT: i32 = -1;
 const MAX_FORK_ROUTE_PRESET: usize = 2048;
 
 pub struct BlockChainDatabase<T> where T: KeyValueDatabase {
 	best_block: RwLock<BestBlock>,
+	best_ivector_height: RwLock<i32>,
 	db: T,
 }
 
@@ -90,8 +93,10 @@ impl<T> BlockChainDatabase<CacheDatabase<AutoFlushingOverlayDatabase<T>>> where 
 	pub fn open_with_cache(db: T) -> Self {
 		let db = CacheDatabase::new(AutoFlushingOverlayDatabase::new(db, 50));
 		let best_block = Self::read_best_block(&db).unwrap_or_default();
+		let best_ivector_height = Self::read_best_ivector_height(&db);
 		BlockChainDatabase {
 			best_block: RwLock::new(best_block),
+			best_ivector_height: RwLock::new(best_ivector_height),
 			db: db,
 		}
 	}
@@ -112,10 +117,23 @@ impl<T> BlockChainDatabase<T> where T: KeyValueDatabase {
 		}
 	}
 
+	fn read_best_ivector_height(db: &T) -> i32 {
+		let best_ivector_height =
+			db.get(&Key::Meta(KEY_BEST_IVECTOR_HEIGHT))
+				.map(KeyState::into_option).map(|x| x.and_then(Value::as_meta));
+		match best_ivector_height {
+			Ok(None) => IVECTOR_DEFAULT_HEIGHT,
+			Ok(Some(height)) => deserialize(&**height).unwrap(),  //todo: unwrap()
+			_ => panic!("Inconsistent DB"),
+		}
+	}
+
 	pub fn open(db: T) -> Self {
 		let best_block = Self::read_best_block(&db).unwrap_or_default();
+		let best_ivector_height = Self::read_best_ivector_height(&db);
 		BlockChainDatabase {
 			best_block: RwLock::new(best_block),
+			best_ivector_height: RwLock::new(best_ivector_height),
 			db: db,
 		}
 	}
@@ -601,6 +619,50 @@ impl<T> ConfigStore for BlockChainDatabase<T> where T: KeyValueDatabase {
 }
 
 impl<T> InterlinkVectorProvider for BlockChainDatabase<T> where T: KeyValueDatabase {
+
+	//todo: the only constructor for InterlinkVector, make more basic one in popow
+	fn genesis_interlink_vector(&self) -> InterlinkVector {
+		let h = self.block_hash(0).unwrap();
+		let hc = h.clone();
+		InterlinkVector {
+			hash: h,
+			vector: vec![hc]
+		}
+	}
+
+	fn interlink_vector(&self) -> InterlinkVector {
+		let height = self.best_block.read().clone().number;
+
+		let mut iv = self.genesis_interlink_vector();
+		let mut idx = 1;
+
+		while idx < height {
+			let h = self.block_header(BlockRef::Number(idx)).unwrap();
+			iv = iv.update_with_header(h);
+			idx = idx + 1;
+		}
+		iv
+	}
+
+	fn interlink_vector_height(&self, height: u32) -> InterlinkVector {
+		panic!("")
+	}
+
+	fn interlink_vector_update(&self) -> InterlinkVector {
+		let ivector_height: i32 = self.best_ivector_height.read().clone();
+		let height = self.best_block.read().clone().number;
+
+		let mut iv = if ivector_height == IVECTOR_DEFAULT_HEIGHT {
+			self.genesis_interlink_vector()
+		} else {
+			self.genesis_interlink_vector()
+		};
+
+		//let mut update = DBTransaction::new();
+		//update.insert(KeyValue::Meta(KEY_BEST_IVECTOR_HEIGHT, serialize(&new_best_block.hash)));
+		iv
+	}
+
 	fn contains_ivector(&self, ivector_hash: H256) -> bool {
 		self.get(Key::InterlinkVector(ivector_hash)).is_some()
 	}
