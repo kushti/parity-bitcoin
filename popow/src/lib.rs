@@ -6,6 +6,7 @@ extern crate serde_derive;
 extern crate chain;
 extern crate serialization as ser;
 extern crate network;
+extern crate script;
 extern crate crypto as rcrypto;
 extern crate bitcrypto as crypto;
 

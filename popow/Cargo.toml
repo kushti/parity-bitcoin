@@ -17,3 +17,4 @@ serialization_derive = { path = "../serialization_derive" }
 network = { path = "../network" }
 chain = {path = "../chain" }
 test-data = {path = "../test-data" }
+script = {path = "../script" }

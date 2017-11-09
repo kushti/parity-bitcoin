@@ -5,6 +5,8 @@ use chain::hash::H256;
 use primitives::compact::Compact;
 use primitives::bigint::U256;
 use chain::BlockHeader;
+use script::Script;
+use script::Builder;
 use ser::{Serializable, Deserializable, Error, Stream, Reader};
 use merkle::merkle;
 
@@ -52,6 +54,11 @@ impl InterlinkVector {
 
 	pub fn root(&self) -> H256 {
 		merkle(&self.vector)
+	}
+
+	pub fn script(&self) -> Script {
+		let vector_root = &*self.root() as &[u8];
+		Builder::build_nulldata(vector_root)
 	}
 }
 
