@@ -6,6 +6,7 @@ use primitives::compact::Compact;
 use primitives::bigint::U256;
 use chain::BlockHeader;
 use ser::{Serializable, Deserializable, Error, Stream, Reader};
+use merkle::merkle;
 
 
 #[derive(Clone)]
@@ -15,6 +16,7 @@ pub struct InterlinkVector {
 	pub hash: H256,
 	pub vector: Vec<H256>
 }
+
 
 impl InterlinkVector {
 
@@ -46,6 +48,10 @@ impl InterlinkVector {
 				}
 			}
 		}
+	}
+
+	pub fn root(&self) -> H256 {
+		merkle(&self.vector)
 	}
 }
 

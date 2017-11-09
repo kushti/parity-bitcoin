@@ -52,7 +52,7 @@ fn root(prev_level: &Vec<H256>) -> H256 {
 	}
 }
 
-fn merkle(non_empty_leafs: &Vec<H256>) -> H256 {
+pub fn merkle(non_empty_leafs: &Vec<H256>) -> H256 {
 	let digest_size = 32;
 	let zero_hash_vec = H256::default();
 	let zero_hash = zero_hash_vec;
